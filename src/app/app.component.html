@@ -1,0 +1,88 @@
+<div *ngIf="isLoading$ | async" class="fixed top-0 left-0 w-full h-1 bg-blue-500 overflow-hidden z-50">
+  <div class="w-full h-full bg-blue-300 origin-left animate-loading"></div>
+</div>
+
+<div *ngIf="!isLoggedIn" class="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+  <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-700 text-center space-y-6">
+    <h2 class="text-3xl font-black text-white tracking-wide">Weather Dashboard</h2>
+    <p class="text-sm text-slate-400">Protected Entrance Block. Authentication bypass required.</p>
+    <button (click)="handleLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition duration-200 transform hover:scale-[1.02] shadow-lg">
+      Sign In / Bypass Guard
+    </button>
+  </div>
+</div>
+
+<div *ngIf="isLoggedIn" class="min-h-screen bg-slate-900 text-slate-100 font-sans p-4 md:p-8">
+  <div class="max-w-6xl mx-auto space-y-6">
+    
+    <div class="flex flex-col sm:flex-row items-center justify-between bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl gap-4">
+      <div>
+        <h1 class="text-2xl font-bold tracking-wide">Weather Analytics</h1>
+        <p class="text-sm text-slate-400">Real-time precise climate monitoring</p>
+      </div>
+      <div class="w-full sm:w-80 relative">
+        <input 
+          type="text" 
+          [value]="activeCity"
+          (input)="onSearch($event)"
+          placeholder="Search city dynamically..." 
+          class="w-full bg-slate-950 text-white border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 placeholder-slate-500 shadow-inner"
+        />
+      </div>
+    </div>
+
+    <div *ngIf="hasError$ | async" class="bg-amber-500/10 border-2 border-amber-500 rounded-2xl p-6 text-center shadow-lg space-y-3 animate-pulse">
+      <p class="text-amber-500 font-semibold text-lg">⚠️ Network Mutation or Request Failure Encountered.</p>
+      <button (click)="retry()" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-6 py-2 rounded-xl transition duration-150 shadow-md">
+        Retry Pipeline Request
+      </button>
+    </div>
+
+    <div *ngIf="weatherData" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <div class="bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl flex flex-col justify-between space-y-6">
+        <div>
+          <span class="text-xs font-bold tracking-widest text-blue-400 symmetry uppercase">Live Location Context</span>
+          <h2 class="text-4xl font-extrabold text-white mt-1 tracking-tight">{{ weatherData?.name }}</h2>
+        </div>
+        
+        <div class="my-2">
+          <div class="text-6xl font-black text-white tracking-tighter">{{ weatherData?.main?.temp | number:'1.0-1' }}°C</div>
+          <p class="text-sm text-slate-400 capitalize mt-2 flex items-center gap-2">
+            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            {{ weatherData?.weather[0]?.description }}
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-700 text-xs text-slate-400">
+          <div>Humidity: <span class="text-white font-semibold">{{ weatherData?.main?.humidity }}%</span></div>
+          <div>Wind: <span class="text-white font-semibold">{{ weatherData?.wind?.speed }} m/s</span></div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-2 bg-slate-800 rounded-2xl p-6 border border-slate-700 shadow-xl space-y-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-700 pb-4 gap-3">
+          <h3 class="text-xl font-bold text-white">7-Day Extended Timeline</h3>
+          <div class="bg-blue-500/10 border border-blue-500/30 text-blue-400 text-sm font-semibold rounded-xl px-4 py-2">
+            Upcoming 4-Day Avg: <span class="text-white font-black ml-1">{{ avg4DaysTemp | number:'1.1-1' }}°C</span>
+          </div>
+        </div>
+
+        <div class="divide-y divide-slate-700/60 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+          <div *ngFor="let item of forecastList" class="flex justify-between items-center py-3 text-sm">
+            <span class="text-slate-300 font-medium">{{ item.dt_txt | date:'EEEE, MMM d' }}</span>
+            <div class="flex items-center gap-4">
+              <span class="text-xs text-slate-400 capitalize">{{ item.weather[0].description }}</span>
+              <span class="text-white font-bold bg-slate-900 px-3 py-1.5 rounded-xl min-w-[70px] text-center border border-slate-700">
+                {{ item.main.temp | number:'1.0-1' }}°C
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
